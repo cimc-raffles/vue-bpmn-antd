@@ -7,7 +7,7 @@ import flattenDeep from "lodash/flattenDeep";
 
 import Vue from "vue";
 
-import { Form, Tabs, Collapse, Drawer, Modal } from "ant-design-vue";
+import { Form, Tabs, Collapse, Drawer, Modal, Input } from "ant-design-vue";
 import CustomFormItem from "@/components/CustomFormItem.vue";
 
 const getBusinessObject = require("bpmn-js/lib/util/ModelUtil")
@@ -34,6 +34,9 @@ export default {
     _commandStack: {
       type: Object,
     },
+    _translate: {
+      type: Function,
+    },
     _providers: {
       type: Array,
       default: () => new Array(),
@@ -48,6 +51,8 @@ export default {
     ADrawer: Drawer,
     AForm: Form,
     ATabs: Tabs,
+    AInput: Input,
+    AFormItem: Form.Item,
     ATabPane: Tabs.TabPane,
     ACollapse: Collapse,
     ACollapsePanel: Collapse.Panel,
@@ -123,6 +128,16 @@ export default {
       this.hasElement("businessObject");
       return getBusinessObject(this.element);
     },
+    definitions() {
+      const rootElement = this._canvas.getRootElement();
+      return getBusinessObject(rootElement).$parent;
+    },
+    namespace() {
+      return this.definitions.targetNamespace;
+    },
+    namespaceDecorator() {
+      return ["__namespace", { initialValue: this.namespace }];
+    },
   },
   methods: {
     hasElement(node) {
@@ -132,7 +147,7 @@ export default {
       }
     },
     isImplicitRoot(element) {
-      return element.id === "__implicitroot";
+      return (element || this.element).id === "__implicitroot";
     },
     isTabVisible(tab) {
       this.hasElement("tab");
@@ -152,8 +167,18 @@ export default {
         tab: tab,
       });
     },
+    isProcessElement() {
+      return (
+        getBusinessObject(this.element).$parent.$type === "bpmn:Definitions"
+      );
+    },
+    isGeneralNode(id) {
+      return id === "general";
+    },
     onValuesChange(_, values) {
-      this._modeling.updateProperties(this.element, values);
+      if (this.isProcessElement() && Object.keys(values)[0] === "__namespace")
+        this.definitions.targetNamespace = values["__namespace"];
+      else this._modeling.updateProperties(this.element, values);
     },
   },
   render() {
@@ -216,6 +241,19 @@ export default {
                                     </div>
                                   );
                                 })}
+                              {this.isProcessElement() &&
+                              this.isGeneralNode(tab.id) &&
+                              this.isGeneralNode(group.id) ? (
+                                <a-form-item
+                                  label={this._translate("Namespace")}
+                                >
+                                  <a-input
+                                    v-decorator={this.namespaceDecorator}
+                                  />
+                                </a-form-item>
+                              ) : (
+                                undefined
+                              )}
                             </a-collapse-panel>
                           );
                         })}
@@ -246,7 +284,7 @@ export default {
       const newElement = e.newSelection[0];
       const rootElement = _canvas.getRootElement();
       if (this.isImplicitRoot(rootElement)) return;
-      this.element = newElement;
+      this.element = newElement || rootElement;
     });
 
     _eventBus.on(

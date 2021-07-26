@@ -218,5 +218,7 @@ export default {
     "跟踪日期必须符合EL表达式，如： ${someDate} ,或者一个ISO标准日期，如：2015-06-26T09:54:00",
   Variables: "变量",
 
+  //Custom Variables
   "Condition Type": "条件类型",
+  Namespace: "命名空间",
 };

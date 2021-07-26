@@ -8,13 +8,14 @@ function PropertiesPanel(
   eventBus,
   modeling,
   commandStack,
-  elementRegistry,
-  canvas
+  canvas,
+  translate
 ) {
   this._eventBus = eventBus;
   this._modeling = modeling;
   this._commandStack = commandStack;
   this._canvas = canvas;
+  this._translate = translate;
 
   this._config = config;
 
@@ -33,8 +34,8 @@ PropertiesPanel.$inject = [
   "eventBus",
   "modeling",
   "commandStack",
-  "elementRegistry",
   "canvas",
+  "translate",
 ];
 
 // module.exports = PropertiesPanel;
@@ -61,7 +62,14 @@ PropertiesPanel.prototype.registerProvider = function(priority, provider) {
 };
 
 PropertiesPanel.prototype._init = function() {
-  const { _config, _eventBus, _modeling, _canvas, _commandStack } = this;
+  const {
+    _config,
+    _eventBus,
+    _modeling,
+    _canvas,
+    _translate,
+    _commandStack,
+  } = this;
   const { parent: mountDom } = _config;
   if (!document.querySelector(mountDom)) return;
   const _providers = this._getProviders();
@@ -76,6 +84,7 @@ PropertiesPanel.prototype._init = function() {
           _canvas,
           _commandStack,
           _providers,
+          _translate,
         },
       }),
   }).$mount(mountDom);
