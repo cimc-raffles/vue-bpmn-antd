@@ -1,0 +1,54 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CODING
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [main]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "12"
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          npm install
+          npm run library
+
+      - name: Commit
+        env:
+          CODING_URL: https://${{ secrets.CODING_USERNAME }}:${{ secrets.CODING_KEY }}@e.coding.net/cimc-raffles/vue-bpmn-antd/vue-bpmn-antd.git
+          CODING_WORKSPACE: coding_workspace
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+          rm -fr ../$CODING_WORKSPACE
+          git clone $CODING_URL ../$CODING_WORKSPACE
+          cp -r dist ../$CODING_WORKSPACE
+          cp package.json ../$CODING_WORKSPACE
+          cd ../$CODING_WORKSPACE
+          ls -al
+          git add .
+          git commit -m "${{ github.event.head_commit.message }}"
+          git push origin master
