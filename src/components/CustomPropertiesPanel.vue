@@ -1,11 +1,11 @@
 <script>
+import Vue from "vue";
+
 import map from "lodash/map";
 import keyBy from "lodash/keyBy";
 import reduce from "lodash/reduce";
 import isFunction from "lodash/isFunction";
 import flattenDeep from "lodash/flattenDeep";
-
-import Vue from "vue";
 
 import { Form, Tabs, Collapse, Drawer, Modal, Input } from "ant-design-vue";
 import CustomFormItem from "@/components/CustomFormItem.vue";
@@ -63,6 +63,7 @@ export default {
       visible: true,
       element: undefined,
       tmpElement: undefined,
+      namespace: undefined,
       form: this.$form.createForm(this, {
         name: "__custom-panel-form",
         onValuesChange: this.onValuesChange,
@@ -128,15 +129,14 @@ export default {
       this.hasElement("businessObject");
       return getBusinessObject(this.element);
     },
-    definitions() {
-      const rootElement = this._canvas.getRootElement();
-      return getBusinessObject(rootElement).$parent;
-    },
-    namespace() {
-      return this.definitions.targetNamespace;
-    },
     namespaceDecorator() {
-      return ["__namespace", { initialValue: this.namespace }];
+      return [
+        "__namespace",
+        {
+          initialValue:
+            this.namespace || this.getDefinitions().$parent.targetNamespace,
+        },
+      ];
     },
   },
   methods: {
@@ -175,10 +175,16 @@ export default {
     isGeneralNode(id) {
       return id === "general";
     },
+    getDefinitions() {
+      const rootElement = this._canvas.getRootElement();
+      return getBusinessObject(rootElement);
+    },
     onValuesChange(_, values) {
-      if (this.isProcessElement() && Object.keys(values)[0] === "__namespace")
-        this.definitions.targetNamespace = values["__namespace"];
-      else this._modeling.updateProperties(this.element, values);
+      if (this.isProcessElement() && Object.keys(values)[0] === "__namespace") {
+        const value = values["__namespace"];
+        this.namespace = value;
+        this.getDefinitions().$parent.targetNamespace = value;
+      } else this._modeling.updateProperties(this.element, values);
     },
   },
   render() {
@@ -299,9 +305,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.c-panel {
-  width: 500px;
-  max-width: 500px;
-}
-</style>
