@@ -73,6 +73,11 @@ export default {
       }
     },
   },
+  watch: {
+    source(value) {
+      this.createNewDiagram(value);
+    },
+  },
   mounted() {
     this.init();
   },

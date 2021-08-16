@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <c-modeler />
+    <c-modeler :source="source" />
   </div>
 </template>
 
@@ -10,6 +10,11 @@ import CModeler from "@/components/Modeler";
 export default {
   name: "App",
   components: { CModeler },
+  data() {
+    return {
+      source: undefined,
+    };
+  },
 };
 </script>
 
