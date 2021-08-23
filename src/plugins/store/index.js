@@ -1,8 +1,18 @@
 import Vue from "vue";
-export const store = Vue.observable({ bpmnModeler: undefined });
+export const store = Vue.observable({
+  bpmnModeler: undefined,
+  slots: undefined,
+  scopedSlots: undefined,
+});
 export const mutations = {
   setModeler(bpmnModeler) {
     store.bpmnModeler = bpmnModeler;
+  },
+  setSlots(slots) {
+    store.slots = slots;
+  },
+  setScopedSlots(scopedSlots) {
+    store.scopedSlots = scopedSlots;
   },
 };
 

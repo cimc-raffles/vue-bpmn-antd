@@ -4,6 +4,8 @@ import { Form, Input, Switch } from "ant-design-vue";
 import DocumentationFormItem from "@/components/form-item/DocumentationFormItem";
 import ConditionFormItem from "@/components/form-item/ConditionFormItem";
 
+import { store } from "@/plugins/store";
+
 const getBusinessObject = require("bpmn-js/lib/util/ModelUtil")
   .getBusinessObject;
 
@@ -120,9 +122,14 @@ export default {
     };
     return (
       <a-form-item label={label} data-id={this.dataId}>
-        {h("slot", { attrs: { name: this.dataId, entry: this.entry } }, [
-          createFormItem(),
-        ])}
+        {h(
+          "slot",
+          { attrs: { name: this.dataId, entry: this.entry } },
+          store?.scopedSlots?.[this.dataId]({
+            entry: { ...this.entry, initialValue: this.businessObject[id] },
+          }) ||
+            store?.slots?.[this.dataId] || [createFormItem()]
+        )}
       </a-form-item>
     );
   },

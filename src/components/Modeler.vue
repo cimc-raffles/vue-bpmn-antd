@@ -16,6 +16,8 @@ import CustomDesigner from "@/components/CustomDesigner";
 import CustomSource from "@/components/CustomSource";
 import CToolbar from "@/components/Toolbar";
 
+import { mutations } from "@/plugins/store";
+
 export default {
   name: "CModeler",
   props: {
@@ -43,6 +45,9 @@ export default {
     onSave(source, name) {
       this.$emit("save", source, name);
     },
+  },
+  beforeCreate() {
+    mutations.setSlots(this.$slots);
   },
 };
 </script>
