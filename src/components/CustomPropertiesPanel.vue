@@ -219,6 +219,7 @@ export default {
                               key={group.id}
                               header={group.label}
                               data-group={group.id}
+                              forceRender={true}
                             >
                               {entries
                                 .filter((entry) => !entry.__invisible)
