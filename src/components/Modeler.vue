@@ -46,8 +46,9 @@ export default {
       this.$emit("save", source, name);
     },
   },
-  beforeCreate() {
-    mutations.setSlots(this.$slots);
+  mounted() {
+    if (this.$slots) mutations.setSlots(this.$slots);
+    if (this.$scopedSlots) mutations.setScopedSlots(this.$scopedSlots);
   },
 };
 </script>

@@ -125,8 +125,9 @@ export default {
         {h(
           "slot",
           { attrs: { name: this.dataId, entry: this.entry } },
-          store?.scopedSlots?.[this.dataId]({
-            entry: { ...this.entry, initialValue: this.businessObject[id] },
+          store?.scopedSlots?.[this.dataId]?.({
+            ...this.entry,
+            initialValue: this.businessObject[id],
           }) ||
             store?.slots?.[this.dataId] || [createFormItem()]
         )}

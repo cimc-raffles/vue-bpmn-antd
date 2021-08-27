@@ -2,9 +2,8 @@
   <div id="app">
     <c-modeler :source="source">
       <template slot="general.details.candidateUsers" slot-scope="scope">
-        <a-input
-          v-decorator="[scope.id, { initialValue: scope.initialValue }]"
-        ></a-input>
+        <a-input v-decorator="[scope.id, { initialValue: scope.initialValue }]">
+        </a-input>
       </template>
     </c-modeler>
   </div>
