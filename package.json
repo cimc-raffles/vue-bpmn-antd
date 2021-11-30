@@ -10,10 +10,10 @@
     "library": "vue-cli-service build --target lib --name bpmn-modeler src/components/Modeler.vue"
   },
   "dependencies": {
-    "ant-design-vue": "^1.7.6",
-    "bpmn-js": "^8.7.1",
-    "bpmn-js-properties-panel": "^0.44.0",
-    "camunda-bpmn-moddle": "^5.1.2",
+    "ant-design-vue": "^1.7.8",
+    "bpmn-js": "^8.8.2",
+    "bpmn-js-properties-panel": "^0.46.0",
+    "camunda-bpmn-moddle": "^6.1.1",
     "core-js": "^3.6.5",
     "file-saver": "^2.0.5",
     "size-sensor": "^1.0.1",

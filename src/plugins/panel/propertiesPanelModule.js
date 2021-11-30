@@ -1,6 +1,6 @@
 var Vue = require("vue").default;
-var CustomPropertiesPanel = require("@/components/CustomPropertiesPanel")
-  .default;
+var CustomPropertiesPanel =
+  require("@/components/CustomPropertiesPanel").default;
 
 function PropertiesPanel(
   config,
@@ -48,28 +48,22 @@ module.exports = {
 
 var DEFAULT_PRIORITY = 999;
 
-PropertiesPanel.prototype.registerProvider = function(priority, provider) {
+PropertiesPanel.prototype.registerProvider = function (priority, provider) {
   if (!provider) {
     provider = priority;
     priority = DEFAULT_PRIORITY;
   }
 
-  this._eventBus.on("propertiesPanel.getProviders", priority, function(event) {
+  this._eventBus.on("propertiesPanel.getProviders", priority, function (event) {
     event.providers.push(provider);
   });
 
   this._eventBus.fire("propertiesPanel.providersChanged");
 };
 
-PropertiesPanel.prototype._init = function() {
-  const {
-    _config,
-    _eventBus,
-    _modeling,
-    _canvas,
-    _translate,
-    _commandStack,
-  } = this;
+PropertiesPanel.prototype._init = function () {
+  const { _config, _eventBus, _modeling, _canvas, _translate, _commandStack } =
+    this;
   const { parent: mountDom } = _config;
   if (!document.querySelector(mountDom)) return;
   const _providers = this._getProviders();
@@ -90,7 +84,7 @@ PropertiesPanel.prototype._init = function() {
   }).$mount(mountDom);
 };
 
-PropertiesPanel.prototype._getProviders = function() {
+PropertiesPanel.prototype._getProviders = function () {
   var event = this._eventBus.createEvent({
     type: "propertiesPanel.getProviders",
     providers: [],

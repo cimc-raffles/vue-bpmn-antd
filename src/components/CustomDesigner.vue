@@ -12,7 +12,7 @@ import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
 
 import propertiesPanelModule from "@/plugins/panel/propertiesPanelModule";
 import customTranslate from "@/plugins/i18n/customTranslate";
-import sample from "@/plugins/xml/sample";
+import sample from "@/plugins/xml";
 import { mutations } from "@/plugins/store";
 
 /* bpmn-js 左侧工具栏 */
@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     async init() {
-      // 获取到属性ref为“canvas”的dom节点
+      // 获取到属性ref为 canvas 的dom节点
       this.canvas = this.$refs.canvas;
       // 建模
       this.bpmnModeler = new BpmnModeler({
@@ -89,6 +89,9 @@ export default {
   display: flex;
   width: 100%;
   height: 100%;
+
+  position: relative;
+  overflow: hidden;
 
   .canvas {
     flex-grow: 1;

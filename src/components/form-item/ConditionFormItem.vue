@@ -41,19 +41,15 @@ export default {
     },
   },
   render() {
-    const { __entry } = this.value;
-    const { __element } = __entry;
     return (
       <a-input-group compact={true}>
         <a-select
-          style="width:20%"
+          style="width:30%"
           options={typeOptions}
-          defaultValue={
-            __entry.get(__element)["conditionType"] || typeOptions[0].value
-          }
+          defaultValue={typeOptions[0].value}
         />
         <a-input
-          style="width: 80%"
+          style="width: 70%"
           value={this.text}
           onChange={this.onChange}
         />

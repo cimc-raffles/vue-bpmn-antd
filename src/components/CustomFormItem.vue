@@ -1,21 +1,30 @@
 <script>
-const domify = require("min-dom").domify;
 import { Form, Input, Switch } from "ant-design-vue";
+import { store } from "@/plugins/store";
+
 import DocumentationFormItem from "@/components/form-item/DocumentationFormItem";
 import ConditionFormItem from "@/components/form-item/ConditionFormItem";
 
-import { store } from "@/plugins/store";
-
-const getBusinessObject = require("bpmn-js/lib/util/ModelUtil")
-  .getBusinessObject;
+const typeMap = {
+  Boolean: {
+    tag: Switch,
+    props: { valuePropName: "checked" },
+  },
+  Textarea: { tag: Input.TextArea },
+  Documentation: { tag: DocumentationFormItem },
+  Condition: { tag: ConditionFormItem },
+};
 
 export default {
   name: "CustomFormItem",
   props: {
-    dataId: {
+    type: {
       type: String,
     },
-    entry: {
+    element: {
+      type: Object,
+    },
+    properties: {
       type: Object,
     },
     options: {
@@ -26,116 +35,49 @@ export default {
   components: {
     AFormItem: Form.Item,
     DocumentationFormItem,
-  },
-  computed: {
-    keyMap() {
-      return { condition: "conditionExpression" };
-    },
-    typeMap() {
-      const { id } = this.entry;
-      if (id === "documentation")
-        return {
-          [id]: {
-            tag: DocumentationFormItem,
-          },
-        };
-      if (id === "condition")
-        return {
-          [id]: {
-            tag: ConditionFormItem,
-            props: {
-              entry: this.entry,
-              initialValue: Object.assign(
-                this.businessObject[this.keyMap[id]],
-                { __entry: this.entry }
-              ),
-            },
-          },
-        };
-
-      return {
-        "bpp-textfield": { tag: Input },
-        "bpp-textbox": { tag: Input.TextArea },
-        "bpp-checkbox": {
-          tag: Switch,
-          props: { valuePropName: "checked" },
-        },
-      };
-    },
-    businessObject() {
-      return getBusinessObject(this.entry.__element);
-    },
-  },
-  methods: {
-    getLabel(dom) {
-      const labelDom = dom.querySelector("label");
-      if (!labelDom) return { label: undefined };
-      const { innerHTML } = labelDom;
-      if (labelDom.dataset.show === "isHidden") {
-        this.entry.__invisible = true;
-        return { __invisible: true, label: innerHTML };
-      }
-      return { label: innerHTML };
-    },
-    getHtml() {
-      let { html, id } = this.entry;
-
-      if (!id) throw new Error("entry must have an id");
-
-      if (typeof html === "string") html = domify(html);
-
-      if (html.get && html.constructor.prototype.jquery) html = html.get(0);
-      return html;
-    },
-    getTypeMap() {
-      const { cssClasses, id } = this.entry;
-      return (
-        this.typeMap[id] ||
-        (cssClasses && cssClasses.length && this.typeMap[cssClasses[0]]) || {
-          tag: Input,
-        }
-      );
-    },
+    ConditionFormItem,
   },
   render(h) {
-    const { __invisible, label } = this.getLabel(this.getHtml());
-    if (__invisible) return undefined;
-    const { id } = this.entry;
-    const { tag, props } = this.getTypeMap();
+    const { type, properties: entry, options } = this;
+    const { tag, props } = entry.type ? typeMap[entry.type] : { tag: Input };
+    const id = entry.id || entry.key;
+    const dataId = `${type}-${id}`;
+
+    const decoratorOptions = {
+      initialValue: entry.value,
+      ...options,
+      ...props,
+    };
     const createFormItem = () => {
       return h(tag, {
         domProps: {},
         directives: [
           {
             name: "decorator",
-            value: [
-              this.keyMap[id] || id,
-              {
-                initialValue: this.businessObject[id],
-                ...this.options,
-                ...props,
-              },
-            ],
+            value: [id, decoratorOptions],
           },
         ],
       });
     };
+
     return (
-      <a-form-item label={label} data-id={this.dataId}>
+      <a-form-item
+        label={entry.label}
+        data-id={dataId}
+        {...{ props: this.$attrs }}
+      >
         {h(
           "slot",
-          { attrs: { name: this.dataId, entry: this.entry } },
-          store?.scopedSlots?.[this.dataId]?.({
-            ...this.entry,
-            initialValue: this.businessObject[id],
+          { attrs: { name: dataId, entry: entry } },
+          store?.scopedSlots?.[dataId]?.({
+            id,
+            entry,
+            options: decoratorOptions,
           }) ||
-            store?.slots?.[this.dataId] || [createFormItem()]
+            store?.slots?.[dataId] || [createFormItem()]
         )}
       </a-form-item>
     );
-  },
-  created() {
-    this.entry.__html = this.getHtml();
   },
 };
 </script>

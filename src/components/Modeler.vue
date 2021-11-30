@@ -25,6 +25,9 @@ export default {
       type: String,
       required: false,
     },
+    extensionDataSource: {
+      type: Array,
+    },
   },
   components: {
     ATabs: Tabs,
@@ -49,6 +52,8 @@ export default {
   mounted() {
     if (this.$slots) mutations.setSlots(this.$slots);
     if (this.$scopedSlots) mutations.setScopedSlots(this.$scopedSlots);
+    if (this.extensionDataSource)
+      mutations.setExtensionDataSource(this.extensionDataSource);
   },
 };
 </script>

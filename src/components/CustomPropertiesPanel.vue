@@ -7,15 +7,27 @@ import reduce from "lodash/reduce";
 import isFunction from "lodash/isFunction";
 import flattenDeep from "lodash/flattenDeep";
 
-import { Form, Tabs, Collapse, Drawer, Modal, Input } from "ant-design-vue";
+import {
+  Form,
+  Tabs,
+  Collapse,
+  Drawer,
+  Row,
+  Col,
+  Modal,
+  Input,
+} from "ant-design-vue";
+import properties from "@/assets/properties";
+
 import CustomFormItem from "@/components/CustomFormItem.vue";
+import ExtensionFormItem from "@/components/form-item/ExtensionFormItem";
 
-const getBusinessObject = require("bpmn-js/lib/util/ModelUtil")
-  .getBusinessObject;
+const getBusinessObject =
+  require("bpmn-js/lib/util/ModelUtil").getBusinessObject;
 
-const VERY_HIGH_PRIORITY = 3000;
+// const VERY_HIGH_PRIORITY = 3000;
 
-const visibleEntries = new Set();
+const defaultTitle = "Properties";
 
 export default {
   props: {
@@ -49,6 +61,8 @@ export default {
   },
   components: {
     ADrawer: Drawer,
+    ARow: Row,
+    ACol: Col,
     AForm: Form,
     ATabs: Tabs,
     AInput: Input,
@@ -57,15 +71,27 @@ export default {
     ACollapse: Collapse,
     ACollapsePanel: Collapse.Panel,
     CustomFormItem,
+    ExtensionFormItem,
   },
   data() {
     return {
-      visible: true,
+      visible: false,
       element: undefined,
-      tmpElement: undefined,
       namespace: undefined,
+      layout: {
+        labelCol: { span: 6 },
+        wrapperCol: { span: 18 },
+      },
+      span: {
+        xs: 12 * 2,
+        sm: 12,
+        md: 12,
+        lg: 8,
+        xl: 6,
+        xxl: 6,
+      },
       form: this.$form.createForm(this, {
-        name: "__custom-panel-form",
+        name: `_custom-panel-form_${Math.random().toString().substr(2)}`,
         onValuesChange: this.onValuesChange,
       }),
     };
@@ -75,33 +101,22 @@ export default {
       handler(value) {
         if (!value) return false;
         //TODO:
-        for (const tab of this.tabs) {
-          const tabVisible = this.isTabVisible(value);
-          if (!tabVisible || !tab.groups.length) {
-            tab.__invisible = true;
-            continue;
-          }
-          for (const group of tab.groups) {
-            const groupVisible = this.isGroupVisible(group, value);
-            if (!groupVisible || !group.entries.length) {
-              group.__invisible = true;
-              continue;
-            }
-            for (const entry of group.entries) {
-              const entryVisible = this.isEntryVisible(tab, group, entry);
-              if (!entryVisible) entry.__invisible = true;
-            }
-            if (group.entries.every((x) => x.__invisible))
-              group.__invisible = true;
-          }
-          if (tab.groups.every((x) => x.__invisible)) tab.__invisible = true;
-        }
       },
       immediate: true,
       deep: true,
     },
   },
   computed: {
+    businessObject() {
+      this.hasElement("businessObject");
+      return getBusinessObject(this.element);
+    },
+    namespaceDecorator() {
+      return {
+        initialValue:
+          this.namespace || this.getDefinitions().$parent.targetNamespace,
+      };
+    },
     tabs() {
       if (!this.tmpElement && !this.element) return new Array();
       const { _providers, element, tmpElement } = this;
@@ -125,19 +140,6 @@ export default {
     groupMap() {
       return keyBy(flattenDeep(map(this.tabs, "groups")), "id");
     },
-    businessObject() {
-      this.hasElement("businessObject");
-      return getBusinessObject(this.element);
-    },
-    namespaceDecorator() {
-      return [
-        "__namespace",
-        {
-          initialValue:
-            this.namespace || this.getDefinitions().$parent.targetNamespace,
-        },
-      ];
-    },
   },
   methods: {
     hasElement(node) {
@@ -148,24 +150,6 @@ export default {
     },
     isImplicitRoot(element) {
       return (element || this.element).id === "__implicitroot";
-    },
-    isTabVisible(tab) {
-      this.hasElement("tab");
-      return isFunction(tab.enabled) ? tab.enabled(this.element) : true;
-    },
-    isGroupVisible(group, groupNode) {
-      this.hasElement("group");
-      return isFunction(group.enabled)
-        ? group.enabled(this.element, groupNode)
-        : true;
-    },
-    isEntryVisible(tab, group, entry) {
-      return this._eventBus.fire("propertiesPanel.isEntryVisible", {
-        element: this.element,
-        entry: entry,
-        group: group,
-        tab: tab,
-      });
     },
     isProcessElement() {
       return (
@@ -184,95 +168,84 @@ export default {
         const value = values["__namespace"];
         this.namespace = value;
         this.getDefinitions().$parent.targetNamespace = value;
-      } else this._modeling.updateProperties(this.element, values);
+      } else {
+        this._modeling.updateProperties(this.element, values);
+      }
     },
   },
   render() {
-    return this.element ? (
-      <a-drawer
-        placement="right"
-        visible={this.visible}
-        width={this.width}
-        closable={false}
-        mask={false}
-        getContainer={false}
-        onClose={() => (this.visible = false)}
-      >
-        <a-tabs>
-          {this.tabs
-            .filter((tab) => !tab.__invisible)
-            .map((tab) => {
-              const { groups } = tab;
-              return (
-                <a-tab-pane key={tab.id} tab={tab.label} data-tab={tab.id}>
-                  <a-form form={this.form} layout="vertical">
-                    <a-collapse
-                      defaultActiveKey={groups[0].id}
-                      forceRender={true}
-                    >
-                      {groups
-                        .filter((group) => !group.__invisible)
-                        .map((group) => {
-                          const { entries } = group;
-                          return (
-                            <a-collapse-panel
-                              key={group.id}
-                              header={group.label}
-                              data-group={group.id}
-                              forceRender={true}
-                            >
-                              {entries
-                                .filter((entry) => !entry.__invisible)
-                                .map((entry) => {
-                                  Object.assign(entry, {
-                                    __element: this.element,
-                                  });
-                                  return (
-                                    <div>
-                                      <custom-form-item
-                                        entry={entry}
-                                        data-id={[
-                                          tab.id,
-                                          group.id,
-                                          entry.id,
-                                        ].join(".")}
-                                        data-entry={entry.id}
-                                        options={
-                                          {
-                                            // initialValue: this.businessObject[
-                                            //   entry.id
-                                            // ],
-                                          }
-                                        }
-                                      ></custom-form-item>
-                                    </div>
-                                  );
-                                })}
-                              {this.isProcessElement() &&
-                              this.isGeneralNode(tab.id) &&
-                              this.isGeneralNode(group.id) ? (
-                                <a-form-item
-                                  label={this._translate("Namespace")}
-                                >
-                                  <a-input
-                                    v-decorator={this.namespaceDecorator}
-                                  />
-                                </a-form-item>
-                              ) : (
-                                undefined
-                              )}
-                            </a-collapse-panel>
-                          );
-                        })}
-                    </a-collapse>
-                  </a-form>
-                </a-tab-pane>
-              );
-            })}
-        </a-tabs>
+    if (!this.element) return undefined;
+    this.form.resetFields();
+
+    const options = {
+      props: {
+        ...this.$attrs,
+        placement: "bottom",
+        mask: false,
+        destroyOnClose: true,
+        title: customProperties?.title || defaultTitle,
+        getContainer: false,
+        wrapStyle: { position: "absolute" },
+        visible: this.visible,
+      },
+      on: {
+        close: () => (this.visible = false),
+        ...this.$listeners,
+      },
+    };
+
+    const defaultProperties = [
+      { key: "id", label: "ID" },
+      { key: "name", label: "名称" },
+    ];
+
+    const customProperties = properties[this.element.type] || {
+      properties: [],
+    };
+
+    const currentProperties = [
+      ...defaultProperties,
+      ...customProperties.properties,
+    ];
+
+    return (
+      <a-drawer {...options}>
+        <a-form form={this.form} {...{ props: this.layout }} layout="inline">
+          <a-row>
+            <a-tabs tabPosition="right" size="small">
+              <a-tab-pane key="general" tab="属性">
+                {currentProperties.map((entry) => {
+                  const customOptions =
+                    "__namespace" === entry.key
+                      ? this.namespaceDecorator
+                      : { initialValue: this.businessObject[entry.key] };
+                  return (
+                    <a-col {...{ props: this.span }}>
+                      <custom-form-item
+                        properties={entry}
+                        type={this.element.type}
+                        options={customOptions}
+                      />
+                    </a-col>
+                  );
+                })}
+              </a-tab-pane>
+
+              <a-tab-pane key="extension" tab="扩展">
+                <a-form-item>
+                  <extension-form-item
+                    v-decorator={[
+                      "extensionElements",
+                      { initialValue: this.businessObject },
+                    ]}
+                    element={this.element}
+                  />
+                </a-form-item>
+              </a-tab-pane>
+            </a-tabs>
+          </a-row>
+        </a-form>
       </a-drawer>
-    ) : (
-      undefined
     );
   },
   beforeCreate() {
@@ -292,17 +265,24 @@ export default {
       const rootElement = _canvas.getRootElement();
       if (this.isImplicitRoot(rootElement)) return;
       this.element = newElement || rootElement;
+      this.$nextTick(() => {
+        this.visible = true;
+      });
     });
-
-    _eventBus.on(
-      "propertiesPanel.isEntryVisible",
-      VERY_HIGH_PRIORITY,
-      (context) => {
-        const { tab, group, entry } = context;
-        // if (!tab || !group) return;
-        visibleEntries.add([tab.id, group.id, entry.id].join("."));
-      }
-    );
   },
+  mounted() {},
 };
 </script>
+
+<style lang="less" scoped>
+::v-deep .ant-form {
+  max-width: none;
+  .ant-form-item {
+    display: flex;
+    margin-right: 0;
+    .ant-form-item-control-wrapper {
+      flex: 1;
+    }
+  }
+}
+</style>
