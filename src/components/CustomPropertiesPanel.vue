@@ -77,7 +77,6 @@ export default {
     return {
       visible: false,
       element: undefined,
-      namespace: undefined,
       layout: {
         labelCol: { span: 6 },
         wrapperCol: { span: 18 },
@@ -110,12 +109,6 @@ export default {
     businessObject() {
       this.hasElement("businessObject");
       return getBusinessObject(this.element);
-    },
-    namespaceDecorator() {
-      return {
-        initialValue:
-          this.namespace || this.getDefinitions().$parent.targetNamespace,
-      };
     },
     tabs() {
       if (!this.tmpElement && !this.element) return new Array();
@@ -164,13 +157,7 @@ export default {
       return getBusinessObject(rootElement);
     },
     onValuesChange(_, values) {
-      if (this.isProcessElement() && Object.keys(values)[0] === "__namespace") {
-        const value = values["__namespace"];
-        this.namespace = value;
-        this.getDefinitions().$parent.targetNamespace = value;
-      } else {
-        this._modeling.updateProperties(this.element, values);
-      }
+      this._modeling.updateProperties(this.element, values);
     },
   },
   render() {
@@ -215,10 +202,9 @@ export default {
             <a-tabs tabPosition="right" size="small">
               <a-tab-pane key="general" tab="属性">
                 {currentProperties.map((entry) => {
-                  const customOptions =
-                    "__namespace" === entry.key
-                      ? this.namespaceDecorator
-                      : { initialValue: this.businessObject[entry.key] };
+                  const customOptions = {
+                    initialValue: this.businessObject[entry.key],
+                  };
                   return (
                     <a-col {...{ props: this.span }}>
                       <custom-form-item

@@ -36,10 +36,6 @@ const elements = {
         key: "versionTag",
         label: "版本标签",
       },
-      {
-        key: "__namespace",
-        label: "命名空间",
-      },
       documentation,
     ],
   },
