@@ -54,7 +54,7 @@ export default {
     if (this.$scopedSlots) mutations.setScopedSlots(this.$scopedSlots);
     if (this.extensionDataSource)
       mutations.setExtensionDataSource(this.extensionDataSource);
-    if (this.source) mutations.setSource(this.source);
+    mutations.setSource(this.source);
   },
 };
 </script>
