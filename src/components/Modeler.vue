@@ -2,7 +2,7 @@
   <a-tabs class="c-tab" tabPosition="bottom" @change="onChange">
     <a-tab-pane key="designer" tab="Designer">
       <c-toolbar @save="onSave"></c-toolbar>
-      <custom-designer :source="source"></custom-designer>
+      <custom-designer></custom-designer>
     </a-tab-pane>
     <a-tab-pane key="source" tab="Source">
       <custom-source :visible="sourceTabVisible"></custom-source>
@@ -54,6 +54,7 @@ export default {
     if (this.$scopedSlots) mutations.setScopedSlots(this.$scopedSlots);
     if (this.extensionDataSource)
       mutations.setExtensionDataSource(this.extensionDataSource);
+    if (this.source) mutations.setSource(this.source);
   },
 };
 </script>

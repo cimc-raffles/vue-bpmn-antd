@@ -13,7 +13,7 @@ import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
 import propertiesPanelModule from "@/plugins/panel/propertiesPanelModule";
 import customTranslate from "@/plugins/i18n/customTranslate";
 import sample from "@/plugins/xml";
-import { mutations } from "@/plugins/store";
+import { mutations, store } from "@/plugins/store";
 
 /* bpmn-js 左侧工具栏 */
 import "bpmn-js/dist/assets/diagram-js.css";
@@ -26,16 +26,16 @@ import "bpmn-js-properties-panel/dist/assets/bpmn-js-properties-panel.css";
 
 export default {
   name: "CustomDesigner",
-  props: {
-    source: {
-      type: String,
-      required: false,
-    },
-  },
+  props: {},
   data() {
     return {
       bpmnModeler: undefined,
     };
+  },
+  computed: {
+    source() {
+      return store.source;
+    },
   },
   methods: {
     async init() {

@@ -4,6 +4,7 @@ export const store = Vue.observable({
   slots: undefined,
   scopedSlots: undefined,
   extensionDataSource: undefined,
+  source: undefined,
 });
 export const mutations = {
   setModeler(bpmnModeler) {
@@ -17,6 +18,9 @@ export const mutations = {
   },
   setExtensionDataSource(scopedSlots) {
     store.extensionDataSource = scopedSlots || new Array();
+  },
+  setSource(source) {
+    store.source = source;
   },
 };
 
