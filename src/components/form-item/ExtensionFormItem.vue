@@ -2,9 +2,18 @@
 import KeyValueFormItem from "./KeyValueFormItem";
 
 import { store } from "@/plugins/store";
-import customProperties from "@/assets/properties";
 
 const defaultDataSource = () => [{ key: Math.random() }];
+
+const getExtensionProperties = (type) => {
+  const { extensionProperties } = store;
+  if (!extensionProperties || !Object.keys(extensionProperties).length)
+    return undefined;
+  const key = Object.keys(extensionProperties).find((x) =>
+    new RegExp(x).test(type)
+  );
+  return key ? extensionProperties[key] : undefined;
+};
 
 const adapter = {
   in: (moddleElement) => {
@@ -18,10 +27,8 @@ const adapter = {
           value: x.value,
         }))
       : [];
-    const { extensionDataSource } = store;
-    const __enableCustomProperties =
-      customProperties[moddleElement.$type]?.__enableCustomProperties;
-    if (__enableCustomProperties && extensionDataSource?.length)
+    const extensionDataSource = getExtensionProperties(moddleElement.$type);
+    if (extensionDataSource?.length)
       extensionItems.unshift(
         ...(!extensionItems?.length
           ? extensionDataSource

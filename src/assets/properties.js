@@ -56,13 +56,11 @@ const elements = {
       { key: "priority", label: "优先级" },
       documentation,
     ],
-    __enableCustomProperties: true,
   },
 
   "bpmn:ServiceTask": {
     title: "系统任务",
     properties: [documentation],
-    __enableCustomProperties: true,
   },
   // "bpmn:task": {
   //   title: "任务",

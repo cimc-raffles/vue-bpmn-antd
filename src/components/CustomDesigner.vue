@@ -34,7 +34,7 @@ export default {
   },
   computed: {
     source() {
-      return store.source;
+      return store.source || sample;
     },
   },
   methods: {
@@ -60,7 +60,7 @@ export default {
         },
       });
 
-      await this.createNewDiagram(this.source || sample);
+      await this.createNewDiagram(this.source);
 
       mutations.setModeler(this.bpmnModeler);
     },

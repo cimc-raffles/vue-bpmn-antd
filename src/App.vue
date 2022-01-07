@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <c-modeler :source="source" :extensionDataSource="extensionDataSource">
+    <c-modeler :source="source" :extensionProperties="extensionProperties">
       <template
         slot="bpmn:UserTask-assignee"
         slot-scope="{ id, entry, options }"
@@ -29,15 +29,19 @@ export default {
   data() {
     return {
       source: undefined,
-      extensionDataSource: undefined,
+      extensionProperties: undefined,
     };
   },
   created() {
     this.source = sample;
-    this.extensionDataSource = [
-      { key: Math.random(), name: "path" },
-      { key: Math.random(), name: "ten", value: "s1" },
-    ];
+    this.extensionProperties = {
+      "^bpmn:\\w+Task$": [
+        { key: Math.random(), name: "tenantId" },
+        { key: Math.random(), name: "category" },
+        { key: Math.random(), name: "path", value: "/" },
+      ],
+      "^bpmn:Process$": [{ key: Math.random(), name: "category" }],
+    };
   },
 };
 </script>

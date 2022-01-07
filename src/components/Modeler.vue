@@ -25,8 +25,9 @@ export default {
       type: String,
       required: false,
     },
-    extensionDataSource: {
-      type: Array,
+    extensionProperties: {
+      type: Object,
+      required: false,
     },
   },
   components: {
@@ -52,8 +53,8 @@ export default {
   mounted() {
     if (this.$slots) mutations.setSlots(this.$slots);
     if (this.$scopedSlots) mutations.setScopedSlots(this.$scopedSlots);
-    if (this.extensionDataSource)
-      mutations.setExtensionDataSource(this.extensionDataSource);
+    if (this.extensionProperties)
+      mutations.setExtensionProperties(this.extensionProperties);
     mutations.setSource(this.source);
   },
 };
