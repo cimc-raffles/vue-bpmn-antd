@@ -42,6 +42,14 @@ export default {
       sourceTabVisible: false,
     };
   },
+  watch: {
+    source: {
+      handler(value) {
+        mutations.setSource(value);
+      },
+      immediate: true,
+    },
+  },
   methods: {
     onChange(key) {
       this.sourceTabVisible = "source" === key;
@@ -55,7 +63,6 @@ export default {
     if (this.$scopedSlots) mutations.setScopedSlots(this.$scopedSlots);
     if (this.extensionProperties)
       mutations.setExtensionProperties(this.extensionProperties);
-    mutations.setSource(this.source);
   },
 };
 </script>

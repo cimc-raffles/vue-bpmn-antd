@@ -242,7 +242,6 @@ export default {
     const { _eventBus, _canvas } = this;
     _eventBus.on("root.added", (e) => {
       const element = e.element;
-
       if (this.isImplicitRoot(element)) return;
       this.element = element;
     });
@@ -251,6 +250,8 @@ export default {
       const rootElement = _canvas.getRootElement();
       if (this.isImplicitRoot(rootElement)) return;
       this.element = newElement || rootElement;
+    });
+    _eventBus.on("element.click", () => {
       this.$nextTick(() => {
         this.visible = true;
       });

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="canvas" ref="canvas"></div>
+    <div class="canvas c-diagram" ref="canvas"></div>
     <div id="js-properties-panel" class="panel"></div>
   </div>
 </template>
@@ -74,8 +74,10 @@ export default {
     },
   },
   watch: {
-    source(value) {
-      this.createNewDiagram(value);
+    source: {
+      handler(value) {
+        this.createNewDiagram(value);
+      },
     },
   },
   mounted() {
@@ -95,7 +97,6 @@ export default {
 
   .canvas {
     flex-grow: 1;
-
     background-image: linear-gradient(
         90deg,
         rgba(50, 0, 0, 0.05) 3%,
