@@ -13,7 +13,7 @@ import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
 import propertiesPanelModule from "@/plugins/panel/propertiesPanelModule";
 import customTranslate from "@/plugins/i18n/customTranslate";
 import sample from "@/plugins/xml";
-import { mutations, store } from "@/plugins/store";
+import { mutations, store, activiti2camunda } from "@/plugins/store";
 
 /* bpmn-js 左侧工具栏 */
 import "bpmn-js/dist/assets/diagram-js.css";
@@ -34,7 +34,7 @@ export default {
   },
   computed: {
     source() {
-      return store.source || sample;
+      return activiti2camunda(store.source || sample).trim();
     },
   },
   methods: {
@@ -67,7 +67,7 @@ export default {
 
     async createNewDiagram(xml) {
       try {
-        await this.bpmnModeler.importXML(xml.trim());
+        await this.bpmnModeler.importXML(xml);
       } catch (error) {
         console.error(error);
       }
